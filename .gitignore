@@ -16,3 +16,4 @@ logs/*.log
 logs/*.csv
 shap/*.png
 plots/*.png
+dataset/*
