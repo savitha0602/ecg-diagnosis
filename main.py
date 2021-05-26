@@ -8,7 +8,7 @@ from tqdm import tqdm
 import numpy as np
 
 from dataset import ECGDataset
-from resnet import resnet34
+from resnet2 import resnet34
 from utils import cal_f1s, cal_aucs, split_data
 
 
