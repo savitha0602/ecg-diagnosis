@@ -1,5 +1,6 @@
 import argparse
 import os
+# os.system("rm -rf ./runs/*")
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -11,10 +12,13 @@ from dataset import ECGDataset
 from resnet import resnet34
 from utils import cal_f1s, cal_aucs, split_data
 
+from torch.utils.tensorboard import SummaryWriter
+writer = SummaryWriter()
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data-dir', type=str, default='data/CPSC', help='Directory for data dir')
+    parser.add_argument('--data-dir', type=str, default='dataset/CPSC', help='Directory for data dir')
     parser.add_argument('--leads', type=str, default='all', help='ECG leads to use')
     parser.add_argument('--seed', type=int, default=42, help='Seed to split data')
     parser.add_argument('--num-classes', type=int, default=int, help='Num of diagnostic classes')
@@ -46,6 +50,7 @@ def train(dataloader, net, args, criterion, epoch, scheduler, optimizer, device)
         labels_list.append(labels.data.cpu().numpy())
     # scheduler.step()
     print('Loss: %.4f' % running_loss)
+    writer.add_scalar("Loss/train", running_loss, epoch)
     
 
 def evaluate(dataloader, net, args, criterion, device):
@@ -62,6 +67,7 @@ def evaluate(dataloader, net, args, criterion, device):
         output_list.append(output.data.cpu().numpy())
         labels_list.append(labels.data.cpu().numpy())
     print('Loss: %.4f' % running_loss)
+    writer.add_scalar("Loss/val", running_loss, epoch)
     y_trues = np.vstack(labels_list)
     y_scores = np.vstack(output_list)
     f1s = cal_f1s(y_trues, y_scores)
@@ -123,3 +129,5 @@ if __name__ == "__main__":
     else:
         net.load_state_dict(torch.load(args.model_path, map_location=device))
         evaluate(test_loader, net, args, criterion, device)
+    writer.flush()
+    writer.close()
