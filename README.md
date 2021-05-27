@@ -53,3 +53,8 @@ $ python predict.py --data-dir data/CPSC --leads all --use-gpu # evaluation
 ```sh
 $ python shap_values.py --data-dir data/CPSC --use-gpu # visualizing shap values
 ```
+
+### File Organization
+
+* `preprocess.py`: Data preprocessing. Takes the dataset and procures labels and partitions set into folds randomly. The fold partitioning is truly random without a set seed. Therefore, it cannot be repeated. 8 folds for training, 1 for validation and 1 for testing are randomly chosen according to a seed. This seed defaults to 42, and means that the train and test process are probably repeatable for a particular preprocessed dataset.
+* `dataset.py`: Dataset object that inherits from torch dataset. It produces elements of the dataset for the DataLoader. It can scale/shift data for data augmentation during training phase.
