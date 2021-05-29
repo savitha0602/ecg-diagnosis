@@ -23,9 +23,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def plot_shap(ecg_data, sv_data, top_leads, patient_id, label):
+def plot_shap(ecg_data, sv_data, leads, top_leads, patient_id, label):
     # patient-level interpretation along with raw ECG data
-    leads = np.array(['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'])
     nleads = len(top_leads)
     if nleads == 0:
         return
@@ -118,7 +117,6 @@ if __name__ == '__main__':
     args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
     label_csv = os.path.join(data_dir, 'labels.csv')
     reference_csv = os.path.join(data_dir, 'reference.csv')
-    lleads = np.array(['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'])
     classes = np.array(['SNR', 'AF', 'IAVB', 'LBBB', 'RBBB', 'PAC', 'PVC', 'STD', 'STE'])
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
@@ -178,8 +176,9 @@ if __name__ == '__main__':
         sv_data = svs[label_idx, i]
         
         sv_data_mean = np.mean(sv_data, axis=1)
-        top_leads = np.where(sv_data_mean > 1e-4)[0] # select top leads
+        top_lead_thresh = 1e-4 # empirical threshold from original code
+        top_leads = np.where(sv_data_mean > top_lead_thresh)[0] # select top leads
         preds.append(classes[label_idx])
-        print(patient_id, classes[label_idx], lleads[top_leads])
+        print(patient_id, classes[label_idx], args.leads[top_leads])
 
-        plot_shap(ecg_data, sv_data, top_leads, patient_id, classes[label_idx])
+        plot_shap(ecg_data, sv_data, args.leads, top_leads, patient_id, classes[label_idx])
