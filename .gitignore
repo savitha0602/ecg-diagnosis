@@ -11,6 +11,7 @@ models/*.pth
 results/*.png
 results/*.csv
 results/*.npy
+results/*bak
 logs/ecg-*
 logs/*.log
 logs/*.csv

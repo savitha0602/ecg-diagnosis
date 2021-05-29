@@ -118,15 +118,18 @@ if __name__ == '__main__':
     label_csv = os.path.join(data_dir, 'labels.csv')
     reference_csv = os.path.join(data_dir, 'reference.csv')
     classes = np.array(['SNR', 'AF', 'IAVB', 'LBBB', 'RBBB', 'PAC', 'PVC', 'STD', 'STE'])
+    leads_all = np.array(['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'])
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
     else:
         device = 'cpu'
     if args.leads == 'all':
-        leads = np.array(['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'])
+        leads = leads_all
+        use_leads = np.where(np.in1d(leads_all, leads_all))[0]
         nleads = 12
     else:
         leads = args.leads.split(',')
+        use_leads = np.where(np.in1d(leads_all, leads))[0]
         nleads = len(leads)
     
     model = resnet34(input_channels=nleads).to(device)
@@ -134,7 +137,8 @@ if __name__ == '__main__':
     model.eval()
 
     background = 100
-    result_path = f'results/A{background * 2}.npy'
+    result_path = f'results/A{background * 2}_{args.leads}_{args.seed}.npy'
+    
 
     df_labels = pd.read_csv(label_csv)
     df_reference = pd.read_csv(os.path.join(args.data_dir, 'reference.csv'))
@@ -146,8 +150,10 @@ if __name__ == '__main__':
     to_explain = patient_ids[:background * 2]
 
     background_patient_ids = df.head(background)['patient_id'].to_numpy()
+   
     background_inputs = [os.path.join(data_dir, patient_id) for patient_id in background_patient_ids]
     background_inputs = torch.stack([torch.from_numpy(prepare_input(input)).float() for input in background_inputs]).to(device)
+    background_inputs = background_inputs[:,use_leads,:];
     
     e = shap.GradientExplainer(model, background_inputs)
 
@@ -157,6 +163,7 @@ if __name__ == '__main__':
         for patient_id in tqdm(to_explain):
             input = os.path.join(data_dir, patient_id)
             inputs = torch.stack([torch.from_numpy(prepare_input(input)).float()]).to(device)
+            inputs = inputs[:,use_leads,:]
             y_scores.append(torch.sigmoid(model(inputs)).detach().cpu().numpy())
             sv = np.array(e.shap_values(inputs)) # (n_classes, n_samples, n_leads, n_points)
             svs.append(sv)
@@ -166,12 +173,13 @@ if __name__ == '__main__':
     svs, y_scores = np.load(result_path, allow_pickle=True)
 
     # summary_plot(svs, y_scores)
-    plot_shap2(svs, y_scores)
+#     plot_shap2(svs, y_scores)
 
     preds = []
     top_leads_list = []
     for i, patient_id in enumerate(to_explain):
         ecg_data = prepare_input(os.path.join(data_dir, patient_id))
+        pdb.set_trace()
         label_idx = np.argmax(y_scores[i])
         sv_data = svs[label_idx, i]
         
