@@ -68,9 +68,8 @@ def summary_plot(svs, y_scores):
     plt.clf()
 
 
-def plot_shap2(svs, y_scores, cmap=plt.cm.Blues):
+def plot_shap2(svs, y_scores, leads, cmap=plt.cm.Blues):
     # population-level interpretation
-    leads = np.array(['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'])
     n = y_scores.shape[0]
     results = [[], [], [], [], [], [], [], [], []]
     print(svs.shape)
@@ -173,7 +172,7 @@ if __name__ == '__main__':
     svs, y_scores = np.load(result_path, allow_pickle=True)
 
     # summary_plot(svs, y_scores)
-#     plot_shap2(svs, y_scores)
+#     plot_shap2(svs, y_scores, leads)
 
     preds = []
     top_leads_list = []
