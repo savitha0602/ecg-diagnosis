@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from resnet import resnet34
 from utils import prepare_input
 
+import pdb
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -34,14 +36,17 @@ def plot_shap(ecg_data, sv_data, top_leads, patient_id, label):
     threshold = 0.001 # set threshold to highlight features with high shap values
     fig, axs = plt.subplots(nleads, figsize=(9, nleads))
     fig.suptitle(label)
+#     pdb.set_trace()
     for i, lead in enumerate(top_leads):
         sv_upper = np.ma.masked_where(sv_data[lead] >= threshold, ecg_data[lead])
         sv_lower = np.ma.masked_where(sv_data[lead] < threshold, ecg_data[lead])
+        sv_lowest = np.ma.masked_where(sv_data[lead] > -threshold, ecg_data[lead])
         if nleads == 1:
             axe = axs
         else:
             axe = axs[i]
-        axe.plot(x, sv_upper, x, sv_lower)
+        axe.plot(x, sv_upper, x, sv_lower, x, sv_lowest)
+#         axe.plot(x, sv_upper);
         axe.set_xticks([])
         axe.set_yticks([])
         axe.set_ylabel(leads[lead])
