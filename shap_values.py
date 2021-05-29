@@ -123,7 +123,7 @@ if __name__ == '__main__':
     else:
         device = 'cpu'
     if args.leads == 'all':
-        leads = 'all'
+        leads = np.array(['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'])
         nleads = 12
     else:
         leads = args.leads.split(',')
@@ -179,6 +179,6 @@ if __name__ == '__main__':
         top_lead_thresh = 1e-4 # empirical threshold from original code
         top_leads = np.where(sv_data_mean > top_lead_thresh)[0] # select top leads
         preds.append(classes[label_idx])
-        print(patient_id, classes[label_idx], args.leads[top_leads])
+        print(patient_id, classes[label_idx], leads[top_leads])
 
-        plot_shap(ecg_data, sv_data, args.leads, top_leads, patient_id, classes[label_idx])
+        plot_shap(ecg_data, sv_data, leads, top_leads, patient_id, classes[label_idx])
