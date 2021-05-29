@@ -42,7 +42,6 @@ class ResNet1d(nn.Module):
         self.layer2 = self._make_layer(BasicBlock1d, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(BasicBlock1d, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(BasicBlock1d, 512, layers[3], stride=2)
-        self.lstm   = nn.LSTM(469, 100, 5, batch_first=True)
         self.adaptiveavgpool = nn.AdaptiveAvgPool1d(1)
         self.adaptivemaxpool = nn.AdaptiveMaxPool1d(1)
         self.fc = nn.Linear(512 * block.expansion * 2, num_classes)
@@ -73,15 +72,10 @@ class ResNet1d(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-#         print(x.shape)
-        x,hs = self.lstm(x)
-#         print(x.shape)
         x1 = self.adaptiveavgpool(x)
         x2 = self.adaptivemaxpool(x)
         x = torch.cat((x1, x2), dim=1)
-#         print(x.shape)
         x = x.view(x.size(0), -1)
-#         print("after views shape",x.shape)
         return self.fc(x)
 
 
