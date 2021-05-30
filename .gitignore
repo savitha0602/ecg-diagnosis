@@ -18,3 +18,5 @@ logs/*.csv
 shap/*.png
 plots/*.png
 dataset/*
+
+runs/*
