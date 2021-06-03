@@ -28,7 +28,7 @@ def transform(sig, train=False):
 
 
 class ECGDataset(Dataset):
-    def __init__(self, phase, data_dir, label_csv, folds, leads):
+    def __init__(self, phase, data_dir, label_csv, folds, leads, downsamp_rate=1):
         super(ECGDataset, self).__init__()
         self.phase = phase
         df = pd.read_csv(label_csv)
@@ -46,15 +46,16 @@ class ECGDataset(Dataset):
         self.data_dict = {}
         self.label_dict = {}
 
+        self.downsamp_rate = downsamp_rate
+
     def __getitem__(self, index: int):
         row = self.labels.iloc[index]
         patient_id = row['patient_id']
         ecg_data, _ = wfdb.rdsamp(os.path.join(self.data_dir, patient_id))
         ecg_data = transform(ecg_data, self.phase == 'train')
         # decimate ecg_data to 100 Hz
-        ecg_data = ecg_data[::5,:]
-        num_samp = 3000
-        # num_samp = 15000
+        ecg_data = ecg_data[::self.downsamp_rate,:]
+        num_samp = round(15000/self.downsamp_rate)
         nsteps, _ = ecg_data.shape
         ecg_data = ecg_data[-num_samp:, self.use_leads]
         result = np.zeros((num_samp, self.nleads)) # 30 s, 500 Hz

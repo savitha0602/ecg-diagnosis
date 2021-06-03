@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--resume', default=False, action='store_true', help='Resume')
     parser.add_argument('--use-gpu', default=False, action='store_true', help='Use GPU')
     parser.add_argument('--model-path', type=str, default='', help='Path to saved model')
+    parser.add_argument('--downsamp-rate', type=int, default=1, help='Data Downsampling Rate')
     return parser.parse_args()
 
 
@@ -91,7 +92,10 @@ if __name__ == "__main__":
     database = os.path.basename(data_dir)
 
     if not args.model_path:
-        args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
+        if args.downsamp_rate != 1:
+            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
+        else:
+            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
 
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
@@ -108,11 +112,11 @@ if __name__ == "__main__":
     label_csv = os.path.join(data_dir, 'labels.csv')
     
     train_folds, val_folds, test_folds = split_data(seed=args.seed)
-    train_dataset = ECGDataset('train', data_dir, label_csv, train_folds, leads)
+    train_dataset = ECGDataset('train', data_dir, label_csv, train_folds, leads, args.downsamp_rate)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, pin_memory=True)
-    val_dataset = ECGDataset('val', data_dir, label_csv, val_folds, leads)
+    val_dataset = ECGDataset('val', data_dir, label_csv, val_folds, leads, args.downsamp_rate)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True)
-    test_dataset = ECGDataset('test', data_dir, label_csv, test_folds, leads)
+    test_dataset = ECGDataset('test', data_dir, label_csv, test_folds, leads, args.downsamp_rate)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True)
     net = resnet34(input_channels=nleads).to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=args.lr)
