@@ -4,7 +4,7 @@ import pickle
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics.classification import confusion_matrix
+from sklearn.metrics import confusion_matrix
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -24,6 +24,7 @@ def parse_args():
     parser.add_argument('--use-gpu', default=False, action='store_true', help='Use gpu')
     parser.add_argument('--model-path', type=str, default='', help='Path to saved model')
     parser.add_argument('--downsamp-rate', type=int, default=1, help='Data Downsampling Rate')
+    parser.add_argument('--biGRU', type=int, default=0, help='biGRU toggle')
     return parser.parse_args()
 
 
@@ -73,8 +74,14 @@ def apply_thresholds(test_loader, net, device, thresholds):
     print('Precisions:', scores[:, 0])
     print('Recalls:', scores[:, 1])
     print('F1s:', scores[:, 2])
+    avgF1 = sum(scores[:,2])/len(scores[:,2])
+    avgAUC = sum(scores[:,3])/len(scores[:,3])
+    avgACC = sum(scores[:,4])/len(scores[:,4])
+    print('Avg F1:',avgF1)
     print('AUCs:', scores[:, 3])
+    print('Avg AUC:',avgAUC)
     print('Accs:', scores[:, 4])
+    print('Avg Acc:', avgACC)
     print(np.mean(scores, axis=0))
     plot_cm(y_trues, y_preds)
 
@@ -115,12 +122,17 @@ if __name__ == "__main__":
     args = parse_args()
     data_dir = os.path.normpath(args.data_dir)
     database = os.path.basename(data_dir)
+    bigru_folder = 'bigru'
+    model_folder = 'models/'
+    if args.biGRU ==1:
+        model_folder = model_folder + bigru_folder + '/'
+
     if not args.model_path:
         if args.downsamp_rate != 1:
-            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
+            args.model_path = f'{model_folder}resnet34_{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
         else:
-            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
-
+            args.model_path = f'{model_folder}resnet34_{database}_{args.leads}_{args.seed}.pth'
+    
     args.threshold_path = f'models/{database}-threshold.pkl'
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
