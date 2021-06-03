@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-import numpy as np
-import pdb
 
 
 class BasicBlock1d(nn.Module):
@@ -46,10 +44,7 @@ class ResNet1d(nn.Module):
         self.layer4 = self._make_layer(BasicBlock1d, 512, layers[3], stride=2)
         self.adaptiveavgpool = nn.AdaptiveAvgPool1d(1)
         self.adaptivemaxpool = nn.AdaptiveMaxPool1d(1)
-                
-        self.bi_grus = nn.GRU(input_size=469, hidden_size=1, num_layers=1, batch_first=False, bidirectional=True)
-
-        self.fc = nn.Linear(512 * block.expansion * 4, num_classes)
+        self.fc = nn.Linear(512 * block.expansion * 2, num_classes)
         self.dropout = nn.Dropout(0.2)
     
     def _make_layer(self, block, planes, blocks, stride=1):
@@ -73,48 +68,14 @@ class ResNet1d(nn.Module):
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-#         print(x.shape)
         x = self.layer1(x)
-#         print(x.shape)
         x = self.layer2(x)
-#         print(x.shape)
         x = self.layer3(x)
-#         print(x.shape)
         x = self.layer4(x)
-#         print(x.shape)
-
-        x, xhid = self.bi_grus(x)
-        x3 = x[:,:,:1]
-        x4 = x[:,:,1:]
-#         x4, xhid = self.reverse_gru(x[:,:,np.arange(468, -1, -1)])
-        
-#         pdb.set_trace()
-        x = torch.cat((x3, x4), dim=1)
-        
-        
         x1 = self.adaptiveavgpool(x)
         x2 = self.adaptivemaxpool(x)
-#         print("aaaa")
-#         print(x1.shape)
-#         print(x2.shape)
         x = torch.cat((x1, x2), dim=1)
-#         print(x.shape)
         x = x.view(x.size(0), -1)
-        # x1 is 32x1024x1, x2 is 32x1024x1
-#         print(x.shape)
-        
-#         torch.Size([32, 64, 3750])
-#         torch.Size([32, 64, 3750])
-#         torch.Size([32, 128, 1875])
-#         torch.Size([32, 256, 938])
-#         torch.Size([32, 512, 469])
-#         aaaa
-#         torch.Size([32, 512, 1])
-#         torch.Size([32, 512, 1])
-#         torch.Size([32, 1024, 1])
-        
-        
-#         raise Exception('I know Python!') 
         return self.fc(x)
 
 
