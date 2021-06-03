@@ -52,9 +52,9 @@ class ECGDataset(Dataset):
         ecg_data, _ = wfdb.rdsamp(os.path.join(self.data_dir, patient_id))
         ecg_data = transform(ecg_data, self.phase == 'train')
         # decimate ecg_data to 100 Hz
-        # ecg_data = ecg_data[::5,:]
-        # num_samp = 3000
-        num_samp = 15000
+        ecg_data = ecg_data[::5,:]
+        num_samp = 3000
+        # num_samp = 15000
         nsteps, _ = ecg_data.shape
         ecg_data = ecg_data[-num_samp:, self.use_leads]
         result = np.zeros((num_samp, self.nleads)) # 30 s, 500 Hz

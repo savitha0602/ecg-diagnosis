@@ -1,7 +1,8 @@
 import numpy as np
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_auc_score
 import wfdb
-
+from sklearn.metrics.classification import confusion_matrix
+import pdb
 
 def split_data(seed=42):
     folds = range(1, 11)
@@ -26,6 +27,17 @@ def cal_scores(y_true, y_pred, y_score):
     f1 = f1_score(y_true, y_pred)
     auc = roc_auc_score(y_true, y_score)
     acc = accuracy_score(y_true, y_pred)
+    
+#     cf_matrix = confusion_matrix(y_true, y_pred)
+#     cf_matrix = cf_matrix.astype('float') #/ cf_matrix.sum(axis=1)[:, np.newaxis]
+#     true_neg = cf_matrix[0,0]
+#     true_pos = cf_matrix[1,1]
+    
+#     pdb.set_trace()
+    
+#     precision = true_pos/(true_pos + cf_matrix[0,1])
+#     recall = true_pos/(true_pos + cf_matrix[1,0])
+    
     return precision, recall, f1, auc, acc
 
 
