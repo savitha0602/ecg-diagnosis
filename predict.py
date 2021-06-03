@@ -23,6 +23,7 @@ def parse_args():
     parser.add_argument('--num-workers', type=int, default=4, help='Number of workers to load data')
     parser.add_argument('--use-gpu', default=False, action='store_true', help='Use gpu')
     parser.add_argument('--model-path', type=str, default='', help='Path to saved model')
+    parser.add_argument('--biGRU', type=int, default=0, help='biGRU toggle')
     return parser.parse_args()
 
 
@@ -121,7 +122,11 @@ if __name__ == "__main__":
     data_dir = os.path.normpath(args.data_dir)
     database = os.path.basename(data_dir)
     if not args.model_path:
-        args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
+#         args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
+        if args.biGRU == 1:
+            args.model_path = f'models/bgru_same_backup.pth'
+        else: 
+            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
     args.threshold_path = f'models/{database}-threshold.pkl'
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
