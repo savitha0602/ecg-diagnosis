@@ -28,7 +28,8 @@ class BasicBlock1d(nn.Module):
         out += residual
         out = self.relu(out)
         return out
-
+    
+    
 
 class ResNet1d(nn.Module):
     def __init__(self, block, layers, input_channels=12, inplanes=64, num_classes=9):
@@ -42,10 +43,10 @@ class ResNet1d(nn.Module):
         self.layer2 = self._make_layer(BasicBlock1d, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(BasicBlock1d, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(BasicBlock1d, 512, layers[3], stride=2)
-        self.lstm   = nn.LSTM(469, 100, 5, batch_first=True)
+        self.bgru   = nn.GRU(512, 50, 3, batch_first=True, bidirectional=True, dropout=0.2)
         self.adaptiveavgpool = nn.AdaptiveAvgPool1d(1)
         self.adaptivemaxpool = nn.AdaptiveMaxPool1d(1)
-        self.fc = nn.Linear(512 * block.expansion * 2, num_classes)
+        self.fc = nn.Linear(200, num_classes)
         self.dropout = nn.Dropout(0.2)
     
     def _make_layer(self, block, planes, blocks, stride=1):
@@ -73,15 +74,14 @@ class ResNet1d(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-#         print(x.shape)
-        x,hs = self.lstm(x)
-#         print(x.shape)
+        x = x.reshape((x.shape[0],x.shape[2],x.shape[1]))
+        x,hs = self.bgru(x)
+        x = x.reshape((x.shape[0],x.shape[2],x.shape[1]))
         x1 = self.adaptiveavgpool(x)
         x2 = self.adaptivemaxpool(x)
         x = torch.cat((x1, x2), dim=1)
-#         print(x.shape)
         x = x.view(x.size(0), -1)
-#         print("after views shape",x.shape)
+#         x = self.dropout(x)
         return self.fc(x)
 
 

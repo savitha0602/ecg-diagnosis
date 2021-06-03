@@ -4,7 +4,7 @@ import pickle
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics.classification import confusion_matrix
+from sklearn.metrics import confusion_matrix
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -72,8 +72,14 @@ def apply_thresholds(test_loader, net, device, thresholds):
     print('Precisions:', scores[:, 0])
     print('Recalls:', scores[:, 1])
     print('F1s:', scores[:, 2])
+    avgF1 = sum(scores[:,2])/len(scores[:,2])
+    avgAUC = sum(scores[:,3])/len(scores[:,3])
+    avgACC = sum(scores[:,4])/len(scores[:,4])
+    print('Avg F1:',avgF1)
     print('AUCs:', scores[:, 3])
+    print('Avg AUC:',avgAUC)
     print('Accs:', scores[:, 4])
+    print('Avg Acc:', avgACC)
     print(np.mean(scores, axis=0))
     plot_cm(y_trues, y_preds)
 
