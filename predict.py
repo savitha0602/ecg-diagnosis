@@ -123,9 +123,9 @@ if __name__ == "__main__":
     data_dir = os.path.normpath(args.data_dir)
     database = os.path.basename(data_dir)
     
-    model_name = 'resnet_34_'
+    model_name = 'resnet34_'
     if args.biGRU ==1:
-        model_folder = model_name+'BIGRU_'
+        model_name = model_name+'BIGRU_'
 
     if not args.model_path:
         if args.downsamp_rate != 1:
