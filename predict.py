@@ -9,7 +9,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from resnet import resnet34
+from resnet import resnet34, resnet34_GRU
 from dataset import ECGDataset
 from utils import cal_scores, find_optimal_threshold, split_data
 

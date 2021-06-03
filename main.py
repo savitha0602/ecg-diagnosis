@@ -9,7 +9,7 @@ from tqdm import tqdm
 import numpy as np
 
 from dataset import ECGDataset
-from resnet import resnet34
+from resnet import resnet34, resnet34_GRU
 from utils import cal_f1s, cal_aucs, split_data
 
 from torch.utils.tensorboard import SummaryWriter
@@ -92,16 +92,15 @@ if __name__ == "__main__":
     data_dir = os.path.normpath(args.data_dir)
     database = os.path.basename(data_dir)
 
-    bigru_folder = 'bigru'
-    model_folder = 'models/'
+    model_name = 'resnet_34_'
     if args.biGRU ==1:
-        model_folder = model_folder + bigru_folder + '/'
+        model_folder = model_name+'BIGRU_'
 
     if not args.model_path:
         if args.downsamp_rate != 1:
-            args.model_path = f'{model_folder}resnet34_{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
+            args.model_path = f'./models/{model_name}{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
         else:
-            args.model_path = f'{model_folder}resnet34_{database}_{args.leads}_{args.seed}.pth'
+            args.model_path = f'./models/{model_name}{database}_{args.leads}_{args.seed}.pth'
 
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
