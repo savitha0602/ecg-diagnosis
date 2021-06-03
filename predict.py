@@ -148,7 +148,12 @@ if __name__ == "__main__":
     data_dir = args.data_dir
     label_csv = os.path.join(data_dir, 'labels.csv')
     
-    net = resnet34(input_channels=nleads).to(device)
+    
+    if(args.biGRU == 1):
+        net = resnet34_GRU(input_channels=nleads).to(device)
+    else:
+        net = resnet34(input_channels=nleads).to(device)
+    
     net.load_state_dict(torch.load(args.model_path, map_location=device))
     net.eval()
 

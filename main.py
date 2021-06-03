@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument('--use-gpu', default=False, action='store_true', help='Use GPU')
     parser.add_argument('--model-path', type=str, default='', help='Path to saved model')
     parser.add_argument('--downsamp-rate', type=int, default=1, help='Data Downsampling Rate')
+    parser.add_argument('--biGRU', type=int, default=0, help='biGRU toggle')
     return parser.parse_args()
 
 
@@ -91,11 +92,16 @@ if __name__ == "__main__":
     data_dir = os.path.normpath(args.data_dir)
     database = os.path.basename(data_dir)
 
+    bigru_folder = 'bigru'
+    model_folder = 'models/'
+    if args.biGRU ==1:
+        model_folder = model_folder + bigru_folder + '/'
+
     if not args.model_path:
         if args.downsamp_rate != 1:
-            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
+            args.model_path = f'{model_folder}resnet34_{database}_{args.leads}_{args.seed}_{args.downsamp_rate}.pth'
         else:
-            args.model_path = f'models/resnet34_{database}_{args.leads}_{args.seed}.pth'
+            args.model_path = f'{model_folder}resnet34_{database}_{args.leads}_{args.seed}.pth'
 
     if args.use_gpu and torch.cuda.is_available():
         device = torch.device('cuda:0')
@@ -118,7 +124,12 @@ if __name__ == "__main__":
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True)
     test_dataset = ECGDataset('test', data_dir, label_csv, test_folds, leads, args.downsamp_rate)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True)
-    net = resnet34(input_channels=nleads).to(device)
+    
+    if(args.biGRU == 1):
+        net = resnet34_GRU(input_channels=nleads).to(device)
+    else:
+        net = resnet34(input_channels=nleads).to(device)
+        
     optimizer = torch.optim.Adam(net.parameters(), lr=args.lr)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 10, gamma=0.1)
     
