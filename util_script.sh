@@ -61,7 +61,7 @@ if [ "$DOWNMODEL" = "1" ]; then
 	echo "Done"
 fi
 
-if [ "$DOWNMODEL" = "1" ]; then
+if [ "$PREPROC" = "1" ]; then
 	echo "Performing Data Pre-Processing: xx Minute job, get a coffee!"
 	python preprocess.py --data-dir dataset/CPSC
 	echo "Done"
