@@ -41,7 +41,7 @@ while [ "$1" != "" ]; do
 done
 
 if [ "$DOWNDATA" = "1" ]; then
-	echo "Downloading data"
+	echo "Downloading dataset: ~4 Minute job"
 	mkdir ./dataset
 	cd dataset
 	wget https://www.dropbox.com/s/unicm8ulxt24vh8/CPSC.zip
@@ -52,12 +52,18 @@ fi
 
 
 if [ "$DOWNMODEL" = "1" ]; then
-	echo "Downloading Pre-Trained Models"
+	echo "Downloading Pre-Trained Models: ~1 Minute job"
 	mkdir ./models
 	cd models
 	wget https://www.dropbox.com/s/ivrv1g61mcs6s6j/ece228_group22_models.zip
 	unzip ece228_group22_models.zip
 	cd ..
+	echo "Done"
+fi
+
+if [ "$DOWNMODEL" = "1" ]; then
+	echo "Performing Data Pre-Processing: xx Minute job, get a coffee!"
+	python preprocess.py --data-dir dataset/CPSC
 	echo "Done"
 fi
 
