@@ -46,6 +46,7 @@ if [ "$DOWNDATA" = "1" ]; then
 	cd dataset
 	wget https://www.dropbox.com/s/unicm8ulxt24vh8/CPSC.zip
 	unzip CPSC.zip
+	cd ..
 	echo "Done"
 fi
 
@@ -56,6 +57,7 @@ if [ "$DOWNMODEL" = "1" ]; then
 	cd models
 	wget https://www.dropbox.com/s/ivrv1g61mcs6s6j/ece228_group22_models.zip
 	unzip ece228_group22_models.zip
+	cd ..
 	echo "Done"
 fi
 
