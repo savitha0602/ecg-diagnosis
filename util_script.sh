@@ -6,7 +6,7 @@ usage()
     Options:
     	-d | --getdata      : Download Dataset
     	-m | --getmodel     : Download Pre-Trained Model
-    	-p | --preproc		: Preprocess the data
+    	-p | --preproc      : Preprocess the data
     	-t | --testall      : Test all models
     	-h | --help         : Print this help message"
 }
@@ -71,25 +71,25 @@ if [ "$TESTMODEL" = "1" ]; then
 	echo "Testing All"
 
 	echo "Testing 12 Lead Baseline"
-	python predict.py --data-dir dataset/CPSC --leads all --use-gpu >> ./results/12lead_baseline_test.txt 
+	python predict.py --data-dir dataset/CPSC --leads all --use-gpu > ./results/12lead_baseline_test.txt 
 
 	echo "Test Bi-GRU 12 Lead Model"
-	python predict.py --data-dir dataset/CPSC --leads all --use-gpu --biGRU 1 >> ./results/bigru_test.txt 
+	python predict.py --data-dir dataset/CPSC --leads all --use-gpu --biGRU 1 > ./results/bigru_test.txt 
 
 	echo "Test 6 Lead Model"
-	python predict.py --data-dir dataset/CPSC --leads I,II,III,aVR,aVL,aVF --use-gpu >> ./results/6lead_test.txt # 6 Lead
+	python predict.py --data-dir dataset/CPSC --leads I,II,III,aVR,aVL,aVF --use-gpu > ./results/6lead_test.txt # 6 Lead
 
 	echo "Test 3 Lead Model"
-	python predict.py --data-dir dataset/CPSC --leads I,II,V2 --use-gpu >> ./results/3lead_test.txt # 3 Lead
+	python predict.py --data-dir dataset/CPSC --leads I,II,V2 --use-gpu > ./results/3lead_test.txt # 3 Lead
 
 	echo "Test 1 Lead Model"
-	python predict.py --data-dir dataset/CPSC --leads I --use-gpu >> ./results/1lead_test.txt # 1 Lead
+	python predict.py --data-dir dataset/CPSC --leads I --use-gpu > ./results/1lead_test.txt # 1 Lead
 
 	echo "Test 100 Hz 12 Lead Model"
-	python predict.py --data-dir dataset/CPSC --leads all --use-gpu --downsamp-rate 5 >> ./results/12lead_downsamp_test.txt
+	python predict.py --data-dir dataset/CPSC --leads all --use-gpu --downsamp-rate 5 > ./results/12lead_downsamp_test.txt
 
 	echo "Test 100 Hz 1 Lead Model"
-	python predict.py --data-dir dataset/CPSC --leads I --use-gpu --downsamp-rate 5 >> ./results/1lead_downsamp_test.txt
+	python predict.py --data-dir dataset/CPSC --leads I --use-gpu --downsamp-rate 5 > ./results/1lead_downsamp_test.txt
 
 	echo "Done"
 fi
